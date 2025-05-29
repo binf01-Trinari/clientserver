@@ -1,26 +1,59 @@
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
-public class server {
-    ServerSocket serverSocket;
-    Socket clientSocket;
-    int porta;
-    public server(int porta){
+public class Server {
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
+    private int porta;
+
+    public Server(int porta) {
         this.porta = porta;
-        try{
+    }
+
+    public void attendi() {
+        try {
             serverSocket = new ServerSocket(porta);
-            System.out.println("il server è in ascolto");
+            System.out.println("Server in ascolto sulla porta " + porta);
+            clientSocket = serverSocket.accept();
+            System.out.println("Client connesso.");
         } catch (IOException e) {
-            System.err.println("errore nella fase di ascolto");
+            e.printStackTrace();
         }
     }
-    public Socket attendi (){
-        try{
-            clientSocket = serverSocket.accept();
+
+    public void scrivi(String message) {
+        try {
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+            out.println(message);
         } catch (IOException e) {
-            System.err.println("problrmi di connessione con il client");
+            e.printStackTrace();
         }
-        return clientSocket;
+    }
+
+    public void leggi() {
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String input = in.readLine();
+            System.out.println("Ricevuto dal client: " + input);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void chiudi() {
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void termina() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
+
